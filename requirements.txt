@@ -1,0 +1,5 @@
+Django>=5.0,<6.0
+reportlab>=4.0
+Pillow>=10.0
+requests>=2.31
+psycopg[binary]>=3.1

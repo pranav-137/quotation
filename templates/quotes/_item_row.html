@@ -1,0 +1,16 @@
+<tr class="item-row">
+  <td>
+    {% for h in form.hidden_fields %}{{ h }}{% endfor %}
+    {{ form.description }}{{ form.description.errors }}
+  </td>
+  <td>{{ form.hsn_code }}</td>
+  <td>{{ form.quantity }}{{ form.quantity.errors }}</td>
+  <td>{{ form.rate }}{{ form.rate.errors }}</td>
+  <td style="text-align:center">{{ form.gst_applicable }}</td>
+  <td>{{ form.gst_percent }}</td>
+  <td class="num row-total">0.00</td>
+  <td>
+    <span style="display:none">{{ form.DELETE }}</span>
+    <button type="button" class="btn danger small remove-row" title="Remove item">&times;</button>
+  </td>
+</tr>

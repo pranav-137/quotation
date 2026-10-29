@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Professional GST quotations in a minute</h1>
+  <p>Add your company details, items and terms &mdash; get a clean PDF quotation ready to send to your customer.</p>
+  {% if user.is_authenticated %}
+    <a class="btn" href="{% url 'quotes:maker' %}">Create a quotation</a>
+  {% else %}
+    <a class="btn" href="{% url 'accounts:login' %}">Sign in to get started</a>
+    <p class="muted" style="margin-top:10px">Sign in with Google, or with a one-time code sent to your email.</p>
+  {% endif %}
+</section>
+<section class="features">
+  <div class="card"><h2>With &amp; without GST</h2><p class="muted">Choose GST per item (0, 5, 12, 18 or 28%) &mdash; totals are calculated for you.</p></div>
+  <div class="card"><h2>Your branding</h2><p class="muted">Upload your logo, add GSTIN, notes and terms &amp; conditions.</p></div>
+  <div class="card"><h2>Private by design</h2><p class="muted">Quotation details are used only to build your PDF &mdash; they are not stored on our servers.</p></div>
+</section>
+{% endblock %}

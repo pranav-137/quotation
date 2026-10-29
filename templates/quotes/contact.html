@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Contact us · Quotation Maker{% endblock %}
+{% block content %}
+<div class="card auth" style="max-width:560px;margin-top:20px">
+  <h1>Contact us</h1>
+  <p class="muted">Send us a message. We'll reply to <strong>{{ user.email }}</strong>.</p>
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="field"><label for="{{ form.subject.id_for_label }}">Subject</label>{{ form.subject }}{{ form.subject.errors }}</div>
+    <div class="field" style="margin-top:12px"><label for="{{ form.message.id_for_label }}">Message</label>{{ form.message }}{{ form.message.errors }}</div>
+    <p><button class="btn" type="submit">Send message</button></p>
+  </form>
+</div>
+{% endblock %}

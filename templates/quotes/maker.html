@@ -1,0 +1,831 @@
+```html
+{% extends "base.html" %}
+{% block title %}Create quotation · Quotation Maker{% endblock %}
+
+{% block content %}
+
+<style>
+/* ==============================
+   QUOTATION MAKER THEME
+   ============================== */
+
+.quotation-page {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --field-bg: #ffffff;
+    --text: #172033;
+    --muted: #687386;
+    --border: #dfe4ed;
+    --accent: #4f46e5;
+    --accent-hover: #4338ca;
+    --soft: #eef2ff;
+    --shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+
+    color: var(--text);
+    background: var(--bg);
+    padding: 24px;
+    border-radius: 16px;
+    transition: background .2s, color .2s;
+}
+
+.quotation-page[data-theme="dark"] {
+    --bg: #111827;
+    --surface: #1f2937;
+    --field-bg: #111827;
+    --text: #f3f4f6;
+    --muted: #aab4c5;
+    --border: #374151;
+    --accent: #818cf8;
+    --accent-hover: #a5b4fc;
+    --soft: #312e81;
+    --shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+
+.quotation-page,
+.quotation-page * {
+    box-sizing: border-box;
+}
+
+.quotation-page h1,
+.quotation-page h2,
+.quotation-page p,
+.quotation-page label,
+.quotation-page td,
+.quotation-page th {
+    color: var(--text);
+}
+
+.quotation-page h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.quotation-page h2 {
+    font-size: 19px;
+    margin: 0 0 18px;
+}
+
+.quotation-page .page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.quotation-page .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.quotation-page .theme-toggle:hover {
+    border-color: var(--accent);
+}
+
+/* One outer box for the entire form */
+
+.quotation-page .quotation-card {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+/* Individual sections inside the box */
+
+.quotation-page .form-section {
+    padding: 22px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.quotation-page .form-section:first-child {
+    padding-top: 0;
+}
+
+.quotation-page .form-section:last-of-type {
+    border-bottom: none;
+}
+
+/* Form layout */
+
+.quotation-page .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.quotation-page .field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.quotation-page .field label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.quotation-page input:not([type="checkbox"]):not([type="file"]),
+.quotation-page select,
+.quotation-page textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--field-bg);
+    color: var(--text);
+    font: inherit;
+}
+
+.quotation-page input[type="file"] {
+    max-width: 100%;
+    color: var(--text);
+}
+
+.quotation-page input:focus,
+.quotation-page select:focus,
+.quotation-page textarea:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.quotation-page input[type="checkbox"] {
+    accent-color: var(--accent);
+}
+
+.quotation-page textarea {
+    min-height: 95px;
+    resize: vertical;
+}
+
+.quotation-page .help,
+.quotation-page .muted {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.quotation-page .muted {
+    margin: 12px 0 0;
+}
+
+.quotation-page .errorlist {
+    color: #ef4444;
+    font-size: 13px;
+    margin: 4px 0;
+    padding-left: 18px;
+}
+
+/* Items table */
+
+.quotation-page .tbl-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.quotation-page table.data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.quotation-page table.data th,
+.quotation-page table.data td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.quotation-page table.data th {
+    background: var(--soft);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.quotation-page table.data td {
+    font-size: 14px;
+}
+
+.quotation-page table.data .num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.quotation-page #items-table input,
+.quotation-page #items-table select {
+    min-width: 65px;
+}
+
+.quotation-page #items-table .qty,
+.quotation-page #items-table .rate,
+.quotation-page #items-table .gst-pct {
+    width: 85px;
+}
+
+.quotation-page #items-table .gst-pct:disabled {
+    opacity: .55;
+}
+
+.quotation-page #items-table .row-total {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Buttons */
+
+.quotation-page .btn {
+    display: inline-block;
+    padding: 11px 17px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.quotation-page .btn:hover {
+    background: var(--accent-hover);
+    color: #ffffff;
+}
+
+.quotation-page .btn.secondary {
+    background: var(--soft);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.quotation-page .btn.secondary:hover {
+    border-color: var(--accent);
+}
+
+.quotation-page .btn.small {
+    padding: 8px 12px;
+}
+
+/* Totals */
+
+.quotation-page .totals-table {
+    max-width: 360px;
+    margin: 22px 0 0 auto;
+}
+
+.quotation-page .totals-table tr:last-child td {
+    border-bottom: none;
+    border-top: 2px solid var(--border);
+    font-size: 16px;
+}
+
+/* Notes and terms */
+
+.quotation-page .terms-heading {
+    margin-top: 22px;
+}
+
+/* Submit button */
+
+.quotation-page .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 22px;
+}
+
+/* Responsive layout */
+
+@media (max-width: 650px) {
+    .quotation-page {
+        padding: 14px;
+    }
+
+    .quotation-page .quotation-card {
+        padding: 16px;
+    }
+
+    .quotation-page .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quotation-page h1 {
+        font-size: 23px;
+    }
+
+    .quotation-page .form-section {
+        padding: 18px 0;
+    }
+
+    .quotation-page .form-actions .btn {
+        width: 100%;
+    }
+
+    .quotation-page .totals-table {
+        max-width: 100%;
+    }
+}
+</style>
+
+<div class="quotation-page" id="quotation-page">
+
+  <div class="page-heading">
+    <h1>Create quotation</h1>
+
+    <button type="button"
+            class="theme-toggle"
+            id="theme-toggle"
+            aria-pressed="false">
+      <span id="theme-icon">🌙</span>
+      <span id="theme-label">Dark mode</span>
+    </button>
+  </div>
+
+  <form method="post"
+        enctype="multipart/form-data"
+        id="quote-form">
+
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <!-- ONE MAIN BOX -->
+    <div class="quotation-card">
+
+      <!-- COMPANY DETAILS -->
+      <section class="form-section">
+        <h2>Company details</h2>
+
+        <div class="grid">
+          <div class="field">
+            <label for="{{ form.company_name.id_for_label }}">
+              Company name
+            </label>
+            {{ form.company_name }}
+            {{ form.company_name.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.company_gstin.id_for_label }}">
+              Company GSTIN
+            </label>
+            {{ form.company_gstin }}
+            {{ form.company_gstin.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.company_address.id_for_label }}">
+              Company address
+            </label>
+            {{ form.company_address }}
+            {{ form.company_address.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.company_logo.id_for_label }}">
+              Company logo
+            </label>
+            {{ form.company_logo }}
+            {{ form.company_logo.errors }}
+            <div class="help">
+              PNG or JPG, under 1 MB. Upload it each time.
+            </div>
+          </div>
+        </div>
+
+        <p class="muted">
+          Company name, address, GSTIN and terms are remembered in this browser.
+        </p>
+      </section>
+
+      <!-- QUOTATION DETAILS -->
+      <section class="form-section">
+        <h2>Quotation details</h2>
+
+        <div class="grid">
+          <div class="field">
+            <label for="{{ form.estimate_number.id_for_label }}">
+              Estimate number
+            </label>
+            {{ form.estimate_number }}
+            {{ form.estimate_number.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.date.id_for_label }}">Date</label>
+            {{ form.date }}
+            {{ form.date.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.valid_till.id_for_label }}">
+              Valid till
+            </label>
+            {{ form.valid_till }}
+            {{ form.valid_till.errors }}
+          </div>
+        </div>
+      </section>
+
+      <!-- CUSTOMER DETAILS -->
+      <section class="form-section">
+        <h2>Customer details</h2>
+
+        <div class="grid">
+          <div class="field">
+            <label for="{{ form.customer_name.id_for_label }}">
+              Customer name
+            </label>
+            {{ form.customer_name }}
+            {{ form.customer_name.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.customer_gstin.id_for_label }}">
+              Customer GSTIN (optional)
+            </label>
+            {{ form.customer_gstin }}
+            {{ form.customer_gstin.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.customer_address.id_for_label }}">
+              Customer address
+            </label>
+            {{ form.customer_address }}
+            {{ form.customer_address.errors }}
+          </div>
+        </div>
+      </section>
+
+      <!-- ITEMS -->
+      <section class="form-section">
+        <h2>Items</h2>
+
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+
+        <div class="tbl-wrap">
+          <table class="data" id="items-table">
+            <thead>
+              <tr>
+                <th style="min-width:200px">Description</th>
+                <th style="min-width:90px">HSN/SAC</th>
+                <th style="min-width:80px">Qty</th>
+                <th style="min-width:110px">Rate (₹)</th>
+                <th style="text-align:center">GST?</th>
+                <th style="min-width:80px">GST %</th>
+                <th class="num">Total (₹)</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody id="items-body">
+              {% for f in formset %}
+                {% include "quotes/_item_row.html" with form=f %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          <button type="button"
+                  class="btn secondary small"
+                  id="add-row">
+            + Add item
+          </button>
+
+          <span class="muted">
+            Untick "GST?" for items without GST.
+          </span>
+        </p>
+
+        <table class="data totals-table">
+          <tr>
+            <td>Subtotal</td>
+            <td class="num">₹ <span id="sum-sub">0.00</span></td>
+          </tr>
+
+          <tr>
+            <td>Total GST</td>
+            <td class="num">₹ <span id="sum-gst">0.00</span></td>
+          </tr>
+
+          <tr>
+            <td><strong>Grand total</strong></td>
+            <td class="num">
+              <strong>₹ <span id="sum-total">0.00</span></strong>
+            </td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- NOTES AND TERMS -->
+      <section class="form-section">
+        <h2>Notes</h2>
+        {{ form.notes }}
+        {{ form.notes.errors }}
+
+        <h2 class="terms-heading">Terms &amp; conditions</h2>
+        {{ form.terms }}
+        {{ form.terms.errors }}
+        
+      </section>
+      <section class="form-section">
+        <h2>Authorized signature</h2>
+        {{ form.signature }}
+        {{ form.signature.errors }}
+      </section>
+      <!-- DOWNLOAD BUTTON -->
+      <div class="form-actions">
+        <button class="btn" type="submit">
+          Download PDF
+        </button>
+      </div>
+
+    </div>
+    <!-- END MAIN BOX -->
+
+  </form>
+</div>
+<style>
+  dialog { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:22px; max-width:380px; }
+  dialog::backdrop { background:rgba(0,0,0,.5); }
+</style>
+<dialog id="thanks-dialog">
+  <h2>Thanks for using our app!</h2>
+  <p class="muted">Your quotation has been downloaded.</p>
+  <div class="actions">
+    <a class="btn secondary" href="{% url 'quotes:contact' %}">Contact us</a>
+    <button type="button" class="btn" id="thanks-close">Close</button>
+  </div>
+</dialog>
+<!-- EMPTY ROW TEMPLATE -->
+<template id="empty-row">
+  {% include "quotes/_item_row.html" with form=formset.empty_form %}
+</template>
+
+<script>
+(function () {
+  const page = document.getElementById('quotation-page');
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+  const themeLabel = document.getElementById('theme-label');
+
+  const body = document.getElementById('items-body');
+  const total = document.getElementById('id_items-TOTAL_FORMS');
+  const formEl = document.getElementById('quote-form');
+
+  // ==============================
+  // DARK / LIGHT MODE
+  // ==============================
+
+  function setTheme(theme) {
+    page.dataset.theme = theme;
+
+    const isDark = theme === 'dark';
+
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
+    themeLabel.textContent = isDark ? 'Light mode' : 'Dark mode';
+
+    themeToggle.setAttribute('aria-pressed', String(isDark));
+
+    try {
+      localStorage.setItem('qm_theme', theme);
+    } catch (e) {}
+  }
+
+  let initialTheme = 'light';
+
+  try {
+    const savedTheme = localStorage.getItem('qm_theme');
+
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      initialTheme = savedTheme;
+    }
+  } catch (e) {}
+
+  setTheme(initialTheme);
+
+  themeToggle.addEventListener('click', function () {
+    const nextTheme =
+      page.dataset.theme === 'dark' ? 'light' : 'dark';
+
+    setTheme(nextTheme);
+  });
+
+  // ==============================
+  // ITEM TOTALS AND GST
+  // ==============================
+
+  function fmt(n) {
+    return n.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function recalc() {
+    let sub = 0;
+    let gst = 0;
+
+    body.querySelectorAll('.item-row').forEach(function (row) {
+      if (row.style.display === 'none') return;
+
+      const qty =
+        parseFloat(row.querySelector('.qty').value) || 0;
+
+      const rate =
+        parseFloat(row.querySelector('.rate').value) || 0;
+
+      const gstCheckbox = row.querySelector('.gst-on');
+      const gstSelect = row.querySelector('.gst-pct');
+
+      const on = gstCheckbox.checked;
+      const pct = parseFloat(gstSelect.value) || 0;
+
+      const amount = Math.round(qty * rate * 100) / 100;
+
+      const tax = on
+        ? Math.round(amount * pct) / 100
+        : 0;
+
+      row.querySelector('.row-total').textContent =
+        fmt(amount + tax);
+
+      gstSelect.disabled = !on;
+
+      sub += amount;
+      gst += tax;
+    });
+
+    document.getElementById('sum-sub').textContent = fmt(sub);
+    document.getElementById('sum-gst').textContent = fmt(gst);
+    document.getElementById('sum-total').textContent =
+      fmt(sub + gst);
+  }
+
+  // Add a new item row.
+  document.getElementById('add-row').addEventListener(
+    'click',
+    function () {
+      const index = parseInt(total.value, 10);
+
+      const html = document
+        .getElementById('empty-row')
+        .innerHTML
+        .replace(/__prefix__/g, index);
+
+      body.insertAdjacentHTML('beforeend', html);
+
+      total.value = index + 1;
+      recalc();
+    }
+  );
+
+  // Remove an item row.
+  body.addEventListener('click', function (e) {
+    if (!e.target.classList.contains('remove-row')) return;
+
+    const row = e.target.closest('.item-row');
+
+    const del = row.querySelector(
+      'input[type="checkbox"][name$="-DELETE"]'
+    );
+
+    if (del) {
+      del.checked = true;
+      row.style.display = 'none';
+    } else {
+      // A newly added form may not have a DELETE checkbox.
+      // Keep its indexed fields in the formset but clear them.
+      row.querySelectorAll('input, select, textarea').forEach(
+        function (el) {
+          if (el.type === 'checkbox') {
+            el.checked = false;
+          } else {
+            el.value = '';
+          }
+        }
+      );
+
+      row.style.display = 'none';
+    }
+
+    recalc();
+  });
+
+  body.addEventListener('input', recalc);
+  body.addEventListener('change', recalc);
+
+  // ==============================
+  // REMEMBER COMPANY DETAILS
+  // ==============================
+
+  const KEYS = [
+    'company_name',
+    'company_address',
+    'company_gstin',
+    'terms'
+  ];
+
+  function field(name) {
+    return formEl.elements[name];
+  }
+
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem('qm_company') || '{}'
+    );
+
+    KEYS.forEach(function (key) {
+      const el = field(key);
+
+      if (el && !el.value && saved[key]) {
+        el.value = saved[key];
+      }
+    });
+
+    const estimateField = field('estimate_number');
+
+    if (
+      saved.next_number &&
+      estimateField &&
+      estimateField.value === 'EST-0001'
+    ) {
+      estimateField.value = saved.next_number;
+    }
+  } catch (e) {}
+
+  // Save company information and prepare the next number.
+  formEl.addEventListener('submit', function () {
+    // Disabled selects are not submitted.
+    // Re-enable GST selects so their values are preserved.
+    body.querySelectorAll('.gst-pct').forEach(function (select) {
+      select.disabled = false;
+    });
+
+    try {
+      const data = {};
+
+      KEYS.forEach(function (key) {
+        const el = field(key);
+
+        if (el) {
+          data[key] = el.value;
+        }
+      });
+
+      const estimateField = field('estimate_number');
+      const num = estimateField ? estimateField.value : '';
+      const match = num.match(/(\d+)(?!.*\d)/);
+
+      if (match) {
+        const next = String(
+          parseInt(match[1], 10) + 1
+        ).padStart(match[1].length, '0');
+
+        data.next_number =
+          num.slice(0, match.index) +
+          next +
+          num.slice(match.index + match[1].length);
+      }
+
+      localStorage.setItem(
+        'qm_company',
+        JSON.stringify(data)
+      );
+        } catch (e) {}
+
+    // Show the thank-you dialog once the server says the PDF was sent
+    document.cookie = "pdf_done=; Max-Age=0; path=/";
+    let tries = 0;
+    const timer = setInterval(function () {
+      tries++;
+      if (document.cookie.indexOf("pdf_done=1") !== -1) {
+        clearInterval(timer);
+        document.cookie = "pdf_done=; Max-Age=0; path=/";
+        document.getElementById("thanks-dialog").showModal();
+      } else if (tries > 60) { clearInterval(timer); }
+    }, 500);
+  });
+
+  document.getElementById("thanks-close").addEventListener("click", function () {
+    document.getElementById("thanks-dialog").close();
+  });
+
+  recalc();
+})();
+</script>
+
+{% endblock %}
+```

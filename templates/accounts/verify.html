@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Enter code · Quotation Maker{% endblock %}
+{% block content %}
+<div class="card auth">
+  <h1>Check your email</h1>
+  <p class="muted">We sent a 6-digit code to <strong>{{ email }}</strong>. It is valid for 10 minutes.</p>
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="field">
+      <label for="{{ form.code.id_for_label }}">Sign-in code</label>
+      {{ form.code }}{{ form.code.errors }}
+    </div>
+    <p class="actions">
+      <button class="btn" type="submit">Verify &amp; sign in</button>
+      <a href="{% url 'accounts:login' %}">Use a different email</a>
+    </p>
+  </form>
+</div>
+{% endblock %}
