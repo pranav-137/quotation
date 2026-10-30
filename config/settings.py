@@ -69,8 +69,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Production (Vercel): a Postgres database. Vercel sets DATABASE_URL when you add one.
 # Local development falls back to SQLite.
-if os.environ.get("DATABASE_URL"):
-    _url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+def _find_db_url():
+    for name in ("DATABASE_URL", "POSTGRES_URL"):
+        if os.environ.get(name):
+            return os.environ[name]
+    # Fallback: any variable holding a Postgres URL (e.g. one with a prefix like STORAGE_)
+    for name, value in os.environ.items():
+        if value.startswith(("postgres://", "postgresql://")) and "UNPOOLED" not in name and "NON_POOLING" not in name:
+            return value
+    return None
+
+
+_db_url = _find_db_url()
+
+# On Vercel never fall back to SQLite: stop with a clear message instead.
+if not _db_url and (os.environ.get("VERCEL") or not DEBUG):
+    _names = sorted(k for k in os.environ if any(s in k for s in ("URL", "PG", "POSTGRES", "DATABASE")))
+    raise ImproperlyConfigured("No Postgres URL found. Variable names present: " + ", ".join(_names))
+
+if _db_url:
+    _url = urllib.parse.urlparse(_db_url)
     _query = dict(urllib.parse.parse_qsl(_url.query))
     DATABASES = {
         "default": {
@@ -81,9 +99,12 @@ if os.environ.get("DATABASE_URL"):
             "HOST": _url.hostname,
             "PORT": _url.port or 5432,
             "OPTIONS": {"sslmode": _query.get("sslmode", "require")},
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+            "CONN_HEALTH_CHECKS": True,
         }
     }
 else:
+    # Local development only
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
